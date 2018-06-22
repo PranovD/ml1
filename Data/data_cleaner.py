@@ -1,35 +1,47 @@
-# Summary data contains the Min, Max, Mean, SD, Correl, Median, Mode, Missing
+#input: data from communties_data.txt
+#output: data useful for predictive analysis (ie: excluding first 5 attributes) in 2D Array
+def clean_raw_data(data):
+	rows = (row.strip().split() for row in data)
+	leaveLoop = 0
+	cleaned_data = []
+	for row in rows:
+		tmp = [stat.strip() for stat in row[0].split(',')]
+		cleaned_data.append(tmp[5:])
+	return cleaned_data
+#input: data from summary.txt
+#output: data in 2D Array
+def clean_sum_data(data):
+	# Summary data contains the Attribute, Min, Max, Mean, SD, Correl, Median, Mode, Missing
+	sum_rows = (row.strip().split() for row in data)
+	new_list = []
+	for row in sum_rows:
+	 	new_list.append(row)
+	return new_list
+
+#input: output of clean_raw_data, clean_sum_data, use median value
+#output clean_raw_data with the '?' values replaced with the median value if True or mean if False
+def replace_null_data(old_replacee, replacer, median=True):
+	replacee = list(old_replacee)
+	for row in replacee:
+		replaced = False
+		old_row = list(row)
+		for col in range(len(row)):
+			if row[col] == '?':
+				replaced = True
+				if median:
+					row[col] = replacer[col][6]
+				else:
+					row[col] = replacer[col][3]
+		if replaced:
+			print 'old_row'
+			print old_row
+			print 'row'
+			print row
+	return replacee
+
 summary_data = open("summary.txt", "r")
-sum_rows = (row.strip().split() for row in summary_data)
-new_list = []
-for row in sum_rows:
- 	new_list.append(row)
-sum_rows = new_list
 raw_data = open("communities_data.txt", "r")
-rows = (row.strip().split() for row in raw_data)
-leaveLoop = 0
-clean_data = []
-for row in rows:
-#	print "This is the row"
-#	print row
-#	print "This is the row[0]"
-#	print row[0]
-	tmp = [stat.strip() for stat in row[0].split(',')]
-#	print tmp
-	clean_data.append(tmp[5:])
-#print clean_data
-print len(clean_data[0])
-# print sum_rows
-print len(sum_rows)
-for row in clean_data:
-	replaced = False
-	old_row = list(row)
-	for col in range(len(row)):
-		if row[col] == '?':
-			replaced = True
-			row[col] = sum_rows[col][6]
-	if replaced:
-		print 'old_row'
-		print old_row
-		print 'row'
-		print row
+
+cleaned_data = clean_raw_data(raw_data)
+sumarized_data = clean_sum_data(summary_data)
+usable_data = replace_null_data(cleaned_data, sumarized_data)
