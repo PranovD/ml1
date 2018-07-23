@@ -32,12 +32,11 @@ def replace_null_data(old_replacee, replacer, median=True):
 					row[col] = replacer[col][6]
 				else:
 					row[col] = replacer[col][3]
-		if replaced:
-
 	return replacee
 
-summary_data = open("summary.txt", "r")
-raw_data = open("communities_data.txt", "r")
+# Looks funny but this makes sure it runs when called by a python file in a different directory and still work when run locally
+summary_data = open("../Data/summary.txt", "r")
+raw_data = open("../Data/communities_data.txt", "r")
 
 cleaned_data = clean_raw_data(raw_data)
 sumarized_data = clean_sum_data(summary_data)
