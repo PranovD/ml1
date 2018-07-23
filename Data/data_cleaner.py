@@ -33,10 +33,7 @@ def replace_null_data(old_replacee, replacer, median=True):
 				else:
 					row[col] = replacer[col][3]
 		if replaced:
-			print 'old_row'
-			print old_row
-			print 'row'
-			print row
+
 	return replacee
 
 summary_data = open("summary.txt", "r")
