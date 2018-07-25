@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import math
+from sklearn.decomposition import PCA
 
 # # %% Let's create some toy data
 # # Turn interactive mode on
@@ -23,22 +24,40 @@ input_string_array = np.array(usable_data)
 input_float_array = input_string_array.astype(float)
 # sanity_check_array = np.array(cleaned_data)
 
-#randomize input
+# Randomize input
 random_array = np.random.permutation(input_float_array)
+
+# Constructing y val of array from violent crime rates
+y_array = random_array[:, -1]
+# Constructing x val of array but splicing of last element in every subarray
+x_array = random_array[:, :-1]
+# Reduce dimensionality using Principal Component Analysis
+# print "Number of features prior to dimensionality reduction"
+# print len(x_array[0])
+pca = PCA(.90)
+x_reduced = pca.fit_transform(x_array)
+# print "Number of features post dimensionality reduction"
+# print len(x_reduced[0])
+#print pca.components_
+# print "Variance Ratio"
+# print pca.explained_variance_ratio_
+
+#randomize input
+
+
 
 training_batch_size = int(len(random_array)*.8)
 
-training_data = random_array[:training_batch_size]
+x_training_data = x_array[:training_batch_size]
+y_training_data = y_array[:training_batch_size]
 
-testing_data = random_array[training_batch_size:]
+
+x_testing_data = x_array[training_batch_size:]
+y_testing_data = y_array[training_batch_size:]
 
 
-# Constructing y val of array from violent crime rates
-y_array = training_data[:, -1]
-# Constructing x val of array but splicing of last element in every subarray
-x_array = training_data[:, :-1]
 
-n = len(x_array[0])
+n = len(x_testing_data[0])
 # %% tf.placeholders for the input and output of the network. Placeholders are
 # variables which we need to fill in when we are ready to compute the graph.
 X = tf.placeholder(tf.float32, [n,1])
@@ -75,12 +94,16 @@ with tf.Session() as sess:
     # Fit all training data
     prev_training_cost = 0.0
     for epoch_i in range(n_epochs):
-    	for index in range(training_batch_size):
-    		x_reshaped = np.array(x_array[index]).reshape(122,1)
-    		sess.run(optimizer, feed_dict={X:x_reshaped, Y:y_array[index]})
 
-	    	training_cost = sess.run(cost, feed_dict={X: x_reshaped, Y: y_array})
-	        print(training_cost)
+    	training_cost = 0
+    	for index in range(training_batch_size):
+
+    		x_reshaped = np.array(x_training_data[index]).reshape(n,1)
+    		sess.run(optimizer, feed_dict={X:x_reshaped, Y:y_training_data[index]})
+    		holder_cost = sess.run(cost, feed_dict={X: x_reshaped, Y: y_training_data[index]})
+    		# print holder_cost
+    		training_cost += holder_cost
+        print(training_cost)
 
         # Allow the training to quit if we've reached a minimum
         if np.abs(prev_training_cost - training_cost) < 0.000001:
